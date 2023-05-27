@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  file_manager_redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data:/data
+    command: redis-server --appendonly yes --dir /data
