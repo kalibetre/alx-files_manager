@@ -25,7 +25,7 @@ class UsersController {
 
     const existingUser = await dbClient.findUserByEmail(email);
     if (existingUser) {
-      return response.status(409).json({ error: 'Already exist' });
+      return response.status(400).json({ error: 'Already exist' });
     }
 
     const newUser = await dbClient.addUser(email, password);
