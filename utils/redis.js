@@ -7,12 +7,17 @@ import { promisify } from 'util';
 class RedisClient {
   constructor() {
     this.client = createClient();
+    this.isConnected = false;
 
     this.client.on('error', (err) => {
       console.log('Redis Client Error', err);
     });
 
-    this.asyncSet = promisify(this.client.set).bind(this.client);
+    this.client.on('connect', () => {
+      this.isConnected = true;
+    });
+
+    this.asyncSetX = promisify(this.client.setex).bind(this.client);
     this.asyncGet = promisify(this.client.get).bind(this.client);
     this.asyncDel = promisify(this.client.del).bind(this.client);
     this.asyncExpire = promisify(this.client.expire).bind(this.client);
@@ -24,12 +29,7 @@ class RedisClient {
    * @return {boolean} Returns true if the client is alive, false otherwise.
    */
   isAlive() {
-    try {
-      this.client.ping();
-      return true;
-    } catch (err) {
-      return false;
-    }
+    return this.isConnected;
   }
 
   /**
@@ -41,9 +41,8 @@ class RedisClient {
    * @return {Promise<void>} - a Promise that resolves when the key-value pair
    * is set and the expiry is set
    */
-  async set(key, value, expiry) {
-    await this.asyncSet(key, value);
-    await this.asyncExpire(key, expiry);
+  set(key, value, expiry) {
+    this.asyncSetX(key, expiry, value);
   }
 
   /**
