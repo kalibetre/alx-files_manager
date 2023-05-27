@@ -78,10 +78,10 @@ class DBClient {
         password: hashedPassword,
       },
     );
-    result.ops[0].id = result.ops[0]._id;
-    delete result.ops[0].password;
-    delete result.ops[0]._id;
-    return result.ops[0];
+    return {
+      email: result.ops[0].email,
+      id: result.ops[0]._id,
+    };
   }
 }
 
