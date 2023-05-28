@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import sha1 from 'sha1';
 
 const DB_HOST = process.env.DB_HOST || 'localhost';
@@ -60,6 +60,17 @@ class DBClient {
    */
   findUserByEmail(email) {
     return this.db.collection('users').findOne({ email });
+  }
+
+  /**
+   * Finds a user by their ID in the database.
+   *
+   * @param {string} userId - The ID of the user to find.
+   * @return {Promise<object>} A promise that resolves to the user object if
+   * found, or null if not found.
+   */
+  findUserById(userId) {
+    return this.db.collection('users').findOne({ _id: ObjectId(userId) });
   }
 
   /**
