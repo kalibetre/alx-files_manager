@@ -3,8 +3,8 @@ import {
   deleteSessionToken,
   generateSessionToken,
   getBasicAuthToken,
+  getCurrentUser,
   getSessionToken,
-  getUserFromSession,
 } from '../utils/auth';
 
 /**
@@ -76,20 +76,13 @@ class AuthController {
    * user is unauthorized.
    */
   static async getMe(request, response) {
-    const token = getSessionToken(request);
-    if (!token) {
+    const currentUser = await getCurrentUser(request);
+    if (!currentUser) {
       return response.status(401).json({
         error: 'Unauthorized',
       });
     }
-
-    const user = await getUserFromSession(token);
-    if (!user) {
-      return response.status(401).json({
-        error: 'Unauthorized',
-      });
-    }
-    return response.status(200).json(user);
+    return response.status(200).json(currentUser);
   }
 }
 

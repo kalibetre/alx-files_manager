@@ -91,3 +91,18 @@ export async function getUserFromSession(token) {
   if (!user) { return null; }
   return { email: user.email, id: user._id };
 }
+
+/**
+ * Retrieves the current user associated with the given session token.
+ *
+ * @param {Object} request - The request object that contains the session token.
+ * @return {Promise<Object|null>} - A promise that resolves with the user object
+ * if the session token is valid, otherwise null.
+ */
+export async function getCurrentUser(request) {
+  const token = getSessionToken(request);
+  if (!token) { return null; }
+  const user = await getUserFromSession(token);
+  if (!user) { return null; }
+  return user;
+}
