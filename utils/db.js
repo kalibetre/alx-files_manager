@@ -52,6 +52,15 @@ class DBClient {
   }
 
   /**
+   * Returns the 'files' collection from the database.
+   *
+   * @return {Collection} The 'files' collection.
+   */
+  filesCollection() {
+    return this.db.collection('files');
+  }
+
+  /**
    * Finds a user by their email in the "users" collection.
    *
    * @param {string} email - The email of the user to find.
