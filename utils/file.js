@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'fs/promises';
 import { ObjectId } from 'mongodb';
+import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import dBClient from './db';
 
@@ -80,7 +81,7 @@ export default class File {
       });
     }
     await mkdir(FOLDER_PATH, { recursive: true });
-    const localPath = `${FOLDER_PATH}/${uuidv4()}`;
+    const localPath = join(FOLDER_PATH, uuidv4());
     await writeFile(`${localPath}`, Buffer.from(this.data, 'base64'));
     return this.filesCollection.addFile({
       userId: ObjectId(this.userId),
