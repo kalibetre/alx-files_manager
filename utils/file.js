@@ -87,7 +87,7 @@ export default class File {
       name: this.name,
       type: this.type,
       isPublic: this.isPublic,
-      parentId: this.parentId,
+      parentId: ObjectId(this.parentId),
       localPath,
     });
   }
