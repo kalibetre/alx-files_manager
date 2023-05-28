@@ -24,3 +24,72 @@ class FilesCollection {
     return { id: _id, ...rest };
   }
 }
+
+export default class File {
+  constructor(userId, name, type, parentId, isPublic, data) {
+    this.userId = userId;
+    this.name = name;
+    this.type = type;
+    this.parentId = parentId || 0;
+    this.isPublic = isPublic || false;
+    this.data = data;
+    this.filesCollection = new FilesCollection();
+    this.parent = null;
+  }
+
+  async validate() {
+    if (!this.name) {
+      return 'Missing name';
+    }
+
+    if (!this.type || !VALID_FILE_TYPES.includes(this.type)) {
+      return 'Missing type';
+    }
+
+    if (!this.data && this.type !== FOLDER) {
+      return 'Missing data';
+    }
+
+    if (this.parentId) {
+      const parent = await this.filesCollection.findById(this.parentId);
+      console.log(`PARENT: ${JSON.stringify(parent)}`);
+      if (!parent) {
+        return 'Parent not found';
+      }
+
+      if (parent.type !== FOLDER) {
+        return 'Parent is not a folder';
+      }
+      this.parent = parent;
+    }
+
+    return null;
+  }
+
+  async save() {
+    const error = await this.validate();
+    if (error) {
+      throw new Error(error);
+    }
+
+    if (this.type === FOLDER) {
+      return this.filesCollection.addFile({
+        userId: ObjectId(this.userId),
+        name: this.name,
+        type: FOLDER,
+        parentId: this.parentId,
+      });
+    }
+    await mkdir(FOLDER_PATH, { recursive: true });
+    const localPath = `${FOLDER_PATH}/${uuidv4()}`;
+    await writeFile(`${localPath}`, Buffer.from(this.data, 'base64'));
+    return this.filesCollection.addFile({
+      userId: ObjectId(this.userId),
+      name: this.name,
+      type: this.type,
+      isPublic: this.isPublic,
+      parentId: this.parentId,
+      localPath,
+    });
+  }
+}
