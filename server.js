@@ -4,6 +4,6 @@ import router from './routes';
 const app = express();
 app.use(express.json());
 app.use(router);
-app.listen(process.env.PORT || 5001);
+app.listen(process.env.PORT || 5000);
 
 export default app;
