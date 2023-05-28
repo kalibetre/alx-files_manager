@@ -52,7 +52,6 @@ export default class File {
 
     if (this.parentId) {
       const parent = await this.filesCollection.findById(this.parentId);
-      console.log(`PARENT: ${JSON.stringify(parent)}`);
       if (!parent) {
         return 'Parent not found';
       }
