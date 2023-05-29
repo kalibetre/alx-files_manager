@@ -53,6 +53,9 @@ export class FilesCollection {
    * or null if no such file exists.
    */
   async findUserFileById(userId, fileId) {
+    if (!ObjectId.isValid(fileId)) {
+      return null;
+    }
     const result = await this.files.findOne({
       userId: ObjectId(userId),
       _id: ObjectId(fileId),
@@ -72,17 +75,16 @@ export class FilesCollection {
    * @return {Array} An array containing files belonging to the user.
    */
   async findAllUserFilesByParentId(userId, parentId, page) {
-    try {
-      const results = await this.files.find({
-        userId: ObjectId(userId),
-        parentId: parentId ? ObjectId(parentId) : 0,
-      }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
-      return results.map(
-        FilesCollection.replaceDefaultMongoId,
-      ).map(FilesCollection.removeLocalPath);
-    } catch (err) {
+    if (!ObjectId.isValid(parentId)) {
       return [];
     }
+    const results = await this.files.find({
+      userId: ObjectId(userId),
+      parentId: parentId ? ObjectId(parentId) : 0,
+    }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
+    return results.map(
+      FilesCollection.replaceDefaultMongoId,
+    ).map(FilesCollection.removeLocalPath);
   }
 
   /**
