@@ -1,4 +1,5 @@
 import dbClient from '../utils/db';
+import { userQueue } from '../worker';
 
 /**
  * UsersController class
@@ -29,6 +30,7 @@ class UsersController {
     }
 
     const newUser = await dbClient.addUser(email, password);
+    userQueue.add({ userId: newUser.id });
     return response.status(201).json(newUser);
   }
 }
