@@ -75,14 +75,15 @@ export class FilesCollection {
    * @return {Array} An array containing files belonging to the user.
    */
   async findAllUserFilesByParentId(userId, parentId, page) {
-    if (!ObjectId.isValid(parentId)) {
-      return [];
+    if (parentId !== 0) {
+      if (!ObjectId.isValid(parentId)) {
+        return [];
+      }
+      const parent = await this.findById(parentId);
+      if (!parent || parent.type !== FOLDER) {
+        return [];
+      }
     }
-    const parent = await this.findById(parentId);
-    if (!parent || parent.type !== FOLDER) {
-      return [];
-    }
-
     const results = await this.files.find({
       userId: ObjectId(userId),
       parentId: parentId ? ObjectId(parentId) : 0,
