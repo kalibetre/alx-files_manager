@@ -119,7 +119,7 @@ export class FilesCollection {
       },
       { $set: { isPublic: isPublished } },
     );
-    if (result.modifiedCount !== 1) {
+    if (result.matchedCount !== 1) {
       return null;
     }
     const doc = await this.findById(fileId);
