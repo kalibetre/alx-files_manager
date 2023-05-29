@@ -9,12 +9,13 @@ const FILE = 'file';
 const IMAGE = 'image';
 const VALID_FILE_TYPES = [FOLDER, FILE, IMAGE];
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+const MAX_PAGE_SIZE = 20;
 const { mkdir, writeFile } = promises;
 
 /**
  * FilesCollection class to manage file documents
  */
-class FilesCollection {
+export class FilesCollection {
   constructor() {
     this.files = dBClient.filesCollection();
   }
@@ -40,6 +41,28 @@ class FilesCollection {
   async addFile(file) {
     const result = await this.files.insertOne(file);
     const { _id, ...rest } = result.ops[0];
+    return { id: _id, ...rest };
+  }
+
+  async findUserFileById(userId, fileId) {
+    const result = await this.files.findOne({
+      userId: ObjectId(userId),
+      _id: ObjectId(fileId),
+    });
+    if (!result) { return null; }
+    return FilesCollection.replaceDefaultMongoId(result);
+  }
+
+  async findAllUserFilesByParentId(userId, parentId, page) {
+    const results = await this.files.find({
+      userId: ObjectId(userId),
+      parentId: parentId ? ObjectId(parentId) : 0,
+    }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
+    return results.map(FilesCollection.replaceDefaultMongoId);
+  }
+
+  static replaceDefaultMongoId(document) {
+    const { _id, ...rest } = document;
     return { id: _id, ...rest };
   }
 }
