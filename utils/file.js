@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'fs/promises';
+import { promises } from 'fs';
 import { ObjectId } from 'mongodb';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +9,7 @@ const FILE = 'file';
 const IMAGE = 'image';
 const VALID_FILE_TYPES = [FOLDER, FILE, IMAGE];
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+const { mkdir, writeFile } = promises;
 
 class FilesCollection {
   constructor() {
