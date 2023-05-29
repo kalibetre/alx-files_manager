@@ -124,6 +124,14 @@ class FilesController {
     return FilesController.updatePublication(request, response, false);
   }
 
+  /**
+   * Updates the publication status of a file.
+   *
+   * @param {Object} request - The HTTP request object.
+   * @param {Object} response - The HTTP response object.
+   * @param {boolean} isPublished - The new publication status of the file.
+   * @return {Object} The updated file object as a JSON response.
+   */
   static async updatePublication(request, response, isPublished) {
     const currentUser = await getCurrentUser(request);
 
