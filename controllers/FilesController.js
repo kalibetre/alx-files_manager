@@ -1,7 +1,8 @@
-import { promises } from 'fs';
+import { existsSync, promises } from 'fs';
 import mime from 'mime-types';
 import { getCurrentUser } from '../utils/auth';
-import File, { FilesCollection, FOLDER } from '../utils/file';
+import File, { FOLDER, FilesCollection } from '../utils/file';
+import fileQueue from '../worker';
 
 const { readFile } = promises;
 
@@ -36,6 +37,12 @@ class FilesController {
         currentUser.id, name, type, parentId, isPublic, data,
       );
       const savedFile = await file.save();
+      if (savedFile.type === 'image') {
+        fileQueue.add({
+          userId: currentUser.id,
+          fileId: savedFile.id,
+        });
+      }
       return response.status(201).json(savedFile);
     } catch (error) {
       return response.status(400).json({
@@ -169,6 +176,7 @@ class FilesController {
     const currentUser = await getCurrentUser(request);
 
     const { id } = request.params;
+    const { size } = request.query;
     const filesCollection = new FilesCollection();
     const file = await filesCollection.findPublicOrOwnFile(
       currentUser ? currentUser.id : null,
