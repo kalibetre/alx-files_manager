@@ -72,13 +72,17 @@ export class FilesCollection {
    * @return {Array} An array containing files belonging to the user.
    */
   async findAllUserFilesByParentId(userId, parentId, page) {
-    const results = await this.files.find({
-      userId: ObjectId(userId),
-      parentId: parentId ? ObjectId(parentId) : 0,
-    }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
-    return results.map(
-      FilesCollection.replaceDefaultMongoId,
-    ).map(FilesCollection.removeLocalPath);
+    try {
+      const results = await this.files.find({
+        userId: ObjectId(userId),
+        parentId: parentId ? ObjectId(parentId) : 0,
+      }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
+      return results.map(
+        FilesCollection.replaceDefaultMongoId,
+      ).map(FilesCollection.removeLocalPath);
+    } catch (err) {
+      return [];
+    }
   }
 
   /**
