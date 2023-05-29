@@ -1,10 +1,10 @@
-import { promises } from 'fs';
+import { existsSync, promises } from 'fs';
 import { ObjectId } from 'mongodb';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import dBClient from './db';
 
-const FOLDER = 'folder';
+export const FOLDER = 'folder';
 const FILE = 'file';
 const IMAGE = 'image';
 const VALID_FILE_TYPES = [FOLDER, FILE, IMAGE];
@@ -64,6 +64,37 @@ export class FilesCollection {
     return FilesCollection.removeLocalPath(
       FilesCollection.replaceDefaultMongoId(result),
     );
+  }
+
+  /**
+   * Asynchronously finds and returns a file if it is public or owned by a given
+   * user.
+   *
+   * @param {string} userId - the ID of the user
+   * @param {string} fileId - the ID of the file
+   * @return {Object} Returns the file object with the local path removed and
+   * default mongo ID replaced; null if the file is not found or is not public
+   * and not owned by the user.
+   */
+  async findPublicOrOwnFile(userId, fileId) {
+    if (!ObjectId.isValid(fileId)) {
+      return null;
+    }
+
+    const result = await this.files.findOne({
+      _id: ObjectId(fileId),
+    });
+    if (!result) { return null; }
+
+    if (!result.isPublic && (!userId || !result.userId.equals(userId))) {
+      return null;
+    }
+
+    if (result.type !== FOLDER && !existsSync(result.localPath)) {
+      return null;
+    }
+
+    return FilesCollection.replaceDefaultMongoId(result);
   }
 
   /**

@@ -1,5 +1,9 @@
+import { promises } from 'fs';
+import mime from 'mime-types';
 import { getCurrentUser } from '../utils/auth';
-import File, { FilesCollection } from '../utils/file';
+import File, { FilesCollection, FOLDER } from '../utils/file';
+
+const { readFile } = promises;
 
 /**
  * FilesController class to manage user files
@@ -151,6 +155,33 @@ class FilesController {
       });
     }
     return response.status(200).json(file);
+  }
+
+  static async getFile(request, response) {
+    const currentUser = await getCurrentUser(request);
+
+    const { id } = request.params;
+    const filesCollection = new FilesCollection();
+    const file = await filesCollection.findPublicOrOwnFile(
+      currentUser ? currentUser.id : null,
+      id,
+    );
+    if (!file) {
+      return response.status(404).json({
+        error: 'Not found',
+      });
+    }
+
+    if (file.type === FOLDER) {
+      return response.status(400).json({
+        error: "A folder doesn't have content",
+      });
+    }
+
+    const mimeType = mime.lookup(file.name);
+    response.set('Content-Type', mimeType);
+    const data = await readFile(file.localPath);
+    return response.status(200).send(data);
   }
 }
 
