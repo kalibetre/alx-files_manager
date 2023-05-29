@@ -101,6 +101,34 @@ export class FilesCollection {
   }
 
   /**
+   * Updates a file's publication status for a given user.
+   *
+   * @param {string} userId - The ID of the user who owns the file.
+   * @param {string} fileId - The ID of the file to update.
+   * @param {boolean} isPublished - The new publication status of the file.
+   * @return {Object|null} The updated file, or null if the update failed.
+   */
+  async updateFilePublication(userId, fileId, isPublished) {
+    if (!ObjectId.isValid(fileId)) {
+      return null;
+    }
+    const result = await this.files.updateOne(
+      {
+        _id: ObjectId(fileId),
+        userId: ObjectId(userId),
+      },
+      { $set: { isPublic: isPublished } },
+    );
+    if (result.modifiedCount !== 1) {
+      return null;
+    }
+    const doc = await this.findById(fileId);
+    return FilesCollection.removeLocalPath(
+      FilesCollection.replaceDefaultMongoId(doc),
+    );
+  }
+
+  /**
    * Replaces the default MongoDB _id field with a new 'id' field in the given
    * document object.
    *

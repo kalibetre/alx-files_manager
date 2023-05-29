@@ -101,6 +101,49 @@ class FilesController {
 
     return response.status(200).json(files);
   }
+
+  /**
+   * Executes an asynchronous method to publish a file.
+   *
+   * @param {Object} request - An object containing the request data.
+   * @param {Object} response - An object containing the response data.
+   * @return {Promise} A promise that resolves to the updated publication object.
+   */
+  static async putPublish(request, response) {
+    return FilesController.updatePublication(request, response, true);
+  }
+
+  /**
+   * Executes an asynchronous method to unpublish a file.
+   *
+   * @param {Object} request - the request object
+   * @param {Object} response - the response object
+   * @return {Promise} - a Promise that resolves with the updated publication
+   */
+  static async putUnpublish(request, response) {
+    return FilesController.updatePublication(request, response, false);
+  }
+
+  static async updatePublication(request, response, isPublished) {
+    const currentUser = await getCurrentUser(request);
+
+    if (!currentUser) {
+      return response.status(401).json({
+        error: 'Unauthorized',
+      });
+    }
+    const { id } = request.params;
+    const filesCollection = new FilesCollection();
+    const file = await filesCollection.updateFilePublication(
+      currentUser.id, id, isPublished,
+    );
+    if (!file) {
+      return response.status(404).json({
+        error: 'Not found',
+      });
+    }
+    return response.status(200).json(file);
+  }
 }
 
 export default FilesController;
