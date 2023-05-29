@@ -90,7 +90,7 @@ class FilesController {
 
     let { parentId, page } = request.query;
     if (parentId === '0' || !parentId) parentId = 0;
-    page = page || 0;
+    page = Number.isNaN(page) ? 0 : Number(page);
 
     const filesCollection = new FilesCollection();
     const files = await filesCollection.findAllUserFilesByParentId(
