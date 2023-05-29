@@ -1,5 +1,5 @@
 import { getCurrentUser } from '../utils/auth';
-import File from '../utils/file';
+import File, { FilesCollection } from '../utils/file';
 
 /**
  * FilesController class to manage user files
@@ -34,6 +34,50 @@ class FilesController {
         error: error.message,
       });
     }
+  }
+
+  static async getShow(request, response) {
+    const currentUser = await getCurrentUser(request);
+
+    if (!currentUser) {
+      return response.status(401).json({
+        error: 'Unauthorized',
+      });
+    }
+
+    const { id } = request.params;
+    const filesCollection = new FilesCollection();
+    const file = await filesCollection.findUserFileById(currentUser.id, id);
+    if (!file) {
+      return response.status(404).json({
+        error: 'Not found',
+      });
+    }
+
+    return response.status(200).json(file);
+  }
+
+  static async getIndex(request, response) {
+    const currentUser = await getCurrentUser(request);
+
+    if (!currentUser) {
+      return response.status(401).json({
+        error: 'Unauthorized',
+      });
+    }
+
+    let { parentId, page } = request.query;
+    parentId = parentId || 0;
+    page = page || 0;
+
+    const filesCollection = new FilesCollection();
+    const files = await filesCollection.findAllUserFilesByParentId(
+      currentUser.id,
+      parentId,
+      page,
+    );
+
+    return response.status(200).json(files);
   }
 }
 
