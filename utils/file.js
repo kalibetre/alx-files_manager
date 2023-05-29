@@ -50,7 +50,9 @@ export class FilesCollection {
       _id: ObjectId(fileId),
     });
     if (!result) { return null; }
-    return FilesCollection.replaceDefaultMongoId(result);
+    return FilesCollection.removeLocalPath(
+      FilesCollection.replaceDefaultMongoId(result),
+    );
   }
 
   async findAllUserFilesByParentId(userId, parentId, page) {
@@ -58,12 +60,20 @@ export class FilesCollection {
       userId: ObjectId(userId),
       parentId: parentId ? ObjectId(parentId) : 0,
     }).skip(page * MAX_PAGE_SIZE).limit(MAX_PAGE_SIZE).toArray();
-    return results.map(FilesCollection.replaceDefaultMongoId);
+    return results.map(
+      FilesCollection.replaceDefaultMongoId,
+    ).map(FilesCollection.removeLocalPath);
   }
 
   static replaceDefaultMongoId(document) {
     const { _id, ...rest } = document;
     return { id: _id, ...rest };
+  }
+
+  static removeLocalPath(document) {
+    const doc = { ...document };
+    delete doc.localPath;
+    return doc;
   }
 }
 
