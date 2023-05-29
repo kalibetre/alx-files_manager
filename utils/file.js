@@ -78,6 +78,11 @@ export class FilesCollection {
     if (!ObjectId.isValid(parentId)) {
       return [];
     }
+    const parent = await this.findById(parentId);
+    if (!parent || parent.type !== FOLDER) {
+      return [];
+    }
+
     const results = await this.files.find({
       userId: ObjectId(userId),
       parentId: parentId ? ObjectId(parentId) : 0,
