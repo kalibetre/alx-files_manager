@@ -157,6 +157,14 @@ class FilesController {
     return response.status(200).json(file);
   }
 
+  /**
+   * Retrieves a file from the server given a file id and sends it as a response
+   *
+   * @param {Object} request - The HTTP request object.
+   * @param {Object} response - The HTTP response object.
+   * @return {Promise} Resolves with the file data, or rejects with an error
+   * message.
+   */
   static async getFile(request, response) {
     const currentUser = await getCurrentUser(request);
 
