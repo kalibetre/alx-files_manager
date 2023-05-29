@@ -44,6 +44,14 @@ export class FilesCollection {
     return { id: _id, ...rest };
   }
 
+  /**
+   * Asynchronously finds a user file by its user ID and file ID.
+   *
+   * @param {string} userId - the ID of the user who owns the file
+   * @param {string} fileId - the ID of the file to find
+   * @return {Promise<Object>} The file matching the given user and file ID,
+   * or null if no such file exists.
+   */
   async findUserFileById(userId, fileId) {
     const result = await this.files.findOne({
       userId: ObjectId(userId),
@@ -55,6 +63,14 @@ export class FilesCollection {
     );
   }
 
+  /**
+   * Finds all files belonging to a user that has a specific parentId.
+   *
+   * @param {string} userId - The id of the user to search files for.
+   * @param {string} parentId - The id of the parent file to search for.
+   * @param {number} page - The page number to return.
+   * @return {Array} An array containing files belonging to the user.
+   */
   async findAllUserFilesByParentId(userId, parentId, page) {
     const results = await this.files.find({
       userId: ObjectId(userId),
@@ -65,11 +81,26 @@ export class FilesCollection {
     ).map(FilesCollection.removeLocalPath);
   }
 
+  /**
+   * Replaces the default MongoDB _id field with a new 'id' field in the given
+   * document object.
+   *
+   * @param {Object} document - An object representing a MongoDB document.
+   * @return {Object} An object with the '_id' field replaced by a new 'id'
+   * field.
+   */
   static replaceDefaultMongoId(document) {
     const { _id, ...rest } = document;
     return { id: _id, ...rest };
   }
 
+  /**
+   * Removes the localPath property from a document object.
+   *
+   * @param {Object} document - The document object to remove localPath property
+   * from.
+   * @return {Object} A new document object without the localPath property.
+   */
   static removeLocalPath(document) {
     const doc = { ...document };
     delete doc.localPath;

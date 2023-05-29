@@ -6,11 +6,13 @@ import File, { FilesCollection } from '../utils/file';
  */
 class FilesController {
   /**
-   * Handles uploading a file by creating a new File object and saving it to the database.
+   * Handles uploading a file by creating a new File object and saving it to
+   * the database.
    *
    * @param {Object} request - The HTTP request object.
    * @param {Object} response - The HTTP response object.
-   * @return {Object} The saved file as a JSON object, or an error message as a JSON object.
+   * @return {Object} The saved file as a JSON object, or an error message as a
+   * JSON object.
    */
   static async postUpload(request, response) {
     const currentUser = await getCurrentUser(request);
@@ -26,7 +28,9 @@ class FilesController {
     } = request.body;
 
     try {
-      const file = new File(currentUser.id, name, type, parentId, isPublic, data);
+      const file = new File(
+        currentUser.id, name, type, parentId, isPublic, data,
+      );
       const savedFile = await file.save();
       return response.status(201).json(savedFile);
     } catch (error) {
@@ -36,6 +40,15 @@ class FilesController {
     }
   }
 
+  /**
+   * Returns a JSON response containing a file with the given id, if it belongs
+   * to the current user.
+   *
+   * @param {Object} request - the HTTP request object
+   * @param {Object} response - the HTTP response object
+   * @return {Promise<Object>} - a JSON response containing the file, or an
+   * error message
+   */
   static async getShow(request, response) {
     const currentUser = await getCurrentUser(request);
 
@@ -57,6 +70,15 @@ class FilesController {
     return response.status(200).json(file);
   }
 
+  /**
+   * Retrieves a list of files belonging to the current user, filtered by
+   * `parentId` and `page`.
+   *
+   * @param {Object} request - The request object containing query parameters.
+   * @param {Object} response - The response object to send the list of files.
+   * @return {Object} The HTTP response object with status code 200 and a JSON
+   * array of files.
+   */
   static async getIndex(request, response) {
     const currentUser = await getCurrentUser(request);
 
