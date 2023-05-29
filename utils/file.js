@@ -45,14 +45,15 @@ export class FilesCollection {
   }
 
   /**
-   * Asynchronously finds a user file by its user ID and file ID.
+   * Finds a user file by id.
    *
-   * @param {string} userId - the ID of the user who owns the file
-   * @param {string} fileId - the ID of the file to find
-   * @return {Promise<Object>} The file matching the given user and file ID,
-   * or null if no such file exists.
+   * @param {string} userId - The id of the user.
+   * @param {string} fileId - The id of the file.
+   * @param {boolean} [removeLocalPath=true] - Whether or not to remove the
+   * local path.
+   * @return {Object} The file object.
    */
-  async findUserFileById(userId, fileId) {
+  async findUserFileById(userId, fileId, removeLocalPath = true) {
     if (!ObjectId.isValid(fileId)) {
       return null;
     }
@@ -61,9 +62,12 @@ export class FilesCollection {
       _id: ObjectId(fileId),
     });
     if (!result) { return null; }
-    return FilesCollection.removeLocalPath(
-      FilesCollection.replaceDefaultMongoId(result),
-    );
+    if (removeLocalPath) {
+      return FilesCollection.removeLocalPath(
+        FilesCollection.replaceDefaultMongoId(result),
+      );
+    }
+    return FilesCollection.replaceDefaultMongoId(result);
   }
 
   /**
