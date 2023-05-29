@@ -11,15 +11,32 @@ const VALID_FILE_TYPES = [FOLDER, FILE, IMAGE];
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 const { mkdir, writeFile } = promises;
 
+/**
+ * FilesCollection class to manage file documents
+ */
 class FilesCollection {
   constructor() {
     this.files = dBClient.filesCollection();
   }
 
+  /**
+   * Async function that finds a document by its ID.
+   *
+   * @param {string} id - The ID of the document to find.
+   * @return {Promise<Object>} A promise that resolves to the document with the
+   * given ID, or null if not found.
+   */
   async findById(id) {
     return this.files.findOne({ _id: ObjectId(id) });
   }
 
+  /**
+   * Asynchronously adds a file to the database.
+   *
+   * @param {Object} file - The file to be added to the database.
+   * @return {Object} An object containing the id and the rest of the properties
+   * of the added file.
+   */
   async addFile(file) {
     const result = await this.files.insertOne(file);
     const { _id, ...rest } = result.ops[0];
@@ -27,6 +44,9 @@ class FilesCollection {
   }
 }
 
+/**
+ * A File class that represents a file document
+ */
 export default class File {
   constructor(userId, name, type, parentId, isPublic, data) {
     this.userId = userId;
@@ -38,6 +58,12 @@ export default class File {
     this.filesCollection = new FilesCollection();
   }
 
+  /**
+   * Asynchronously validates the object and returns an error message if
+   * invalid.
+   *
+   * @return {Promise<string>} An error message if invalid, otherwise null.
+   */
   async validate() {
     if (!this.name) {
       return 'Missing name';
@@ -65,6 +91,12 @@ export default class File {
     return null;
   }
 
+  /**
+   * Asynchronously saves data to the file system or database.
+   *
+   * @return {Promise} A Promise that resolves to the saved file object.
+   * @throws {Error} If the provided data is invalid.
+   */
   async save() {
     const error = await this.validate();
     if (error) {

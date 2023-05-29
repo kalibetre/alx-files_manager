@@ -5,6 +5,13 @@ import File from '../utils/file';
  * FilesController class to manage user files
  */
 class FilesController {
+  /**
+   * Handles uploading a file by creating a new File object and saving it to the database.
+   *
+   * @param {Object} request - The HTTP request object.
+   * @param {Object} response - The HTTP response object.
+   * @return {Object} The saved file as a JSON object, or an error message as a JSON object.
+   */
   static async postUpload(request, response) {
     const currentUser = await getCurrentUser(request);
 
