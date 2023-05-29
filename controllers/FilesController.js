@@ -89,7 +89,7 @@ class FilesController {
     }
 
     let { parentId, page } = request.query;
-    parentId = parentId || 0;
+    if (parentId === '0' || !parentId) parentId = 0;
     page = page || 0;
 
     const filesCollection = new FilesCollection();
