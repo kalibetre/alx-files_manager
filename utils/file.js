@@ -36,7 +36,6 @@ export default class File {
     this.isPublic = isPublic || false;
     this.data = data;
     this.filesCollection = new FilesCollection();
-    this.parent = null;
   }
 
   async validate() {
@@ -61,7 +60,6 @@ export default class File {
       if (parent.type !== FOLDER) {
         return 'Parent is not a folder';
       }
-      this.parent = parent;
     }
 
     return null;
@@ -83,13 +81,13 @@ export default class File {
     }
     await mkdir(FOLDER_PATH, { recursive: true });
     const localPath = join(FOLDER_PATH, uuidv4());
-    await writeFile(`${localPath}`, Buffer.from(this.data, 'base64'));
+    await writeFile(localPath, Buffer.from(this.data, 'base64'));
     return this.filesCollection.addFile({
       userId: ObjectId(this.userId),
       name: this.name,
       type: this.type,
       isPublic: this.isPublic,
-      parentId: ObjectId(this.parentId),
+      parentId: this.parentId ? ObjectId(this.parentId) : 0,
       localPath,
     });
   }
