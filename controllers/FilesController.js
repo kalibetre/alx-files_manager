@@ -194,9 +194,20 @@ class FilesController {
       });
     }
 
+    let filePath = file.localPath;
+    if (!Number.isNaN(size) && [500, 250, 100].includes(Number(size))) {
+      filePath += `_${size}`;
+    }
+
+    if (!existsSync(filePath)) {
+      return response.status(404).json({
+        error: 'Not found',
+      });
+    }
+
     const mimeType = mime.lookup(file.name);
     response.set('Content-Type', mimeType);
-    const data = await readFile(file.localPath);
+    const data = await readFile(filePath);
     return response.status(200).send(data);
   }
 }
