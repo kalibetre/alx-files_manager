@@ -1,3 +1,7 @@
+/* eslint-disable no-undef */
+/* eslint-disable jest/valid-expect */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable jest/prefer-expect-assertions */
 import chai from 'chai';
 import { ObjectId } from 'mongodb';
 import dBClient from '../utils/db';
